@@ -6,9 +6,10 @@ from ..core.redis_manager import RedisManager
 class VisitCounterService:
     def __init__(self):
         """Initialize the visit counter service with Redis manager"""
-        self.redis_manager = RedisManager()
+        # self.redis_manager = RedisManager()
+        self._visit_counts: Dict[str, int] = {}
 
-    async def increment_visit(self, page_id: str) -> None:
+    async def increment_visit(self, page_id: str) -> Dict[str, Any]:
         """
         Increment visit count for a page
         
@@ -16,9 +17,18 @@ class VisitCounterService:
             page_id: Unique identifier for the page
         """
         # TODO: Implement visit count increment
-        pass
+        # pass
+        if page_id not in self._visit_counts:
+            self._visit_counts[page_id] = 0
+        
+        self._visit_counts[page_id] += 1
+        
+        return {
+            "visits": self._visit_counts[page_id],
+            "served_via": "in_memory"
+        }
 
-    async def get_visit_count(self, page_id: str) -> int:
+    async def get_visit_count(self, page_id: str) -> Dict[str, Any]:
         """
         Get current visit count for a page
         
@@ -29,4 +39,8 @@ class VisitCounterService:
             Current visit count
         """
         # TODO: Implement getting visit count
-        return 0
+        count = self._visit_counts.get(page_id, 0)
+        return {
+            "visits": count,
+            "served_via": "in_memory"
+        }
